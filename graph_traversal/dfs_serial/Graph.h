@@ -30,12 +30,15 @@ public:
     virtual ~Graph();
 
     int getNumberOfEdges(Vertex* v);
+    vector<Vertex*>* getEdges(Vertex* v);
+    Vertex* getVertex(Vertex* v);
     int getLength();
     Vertex* getHead();
     void setHead(Vertex* v);
     void add_edge (Vertex* from, Vertex* to);
     void print();
-//    map<Vertex*, vector<Vertex*>*>* get_adj_list();
+    unordered_map<Vertex*, vector<Vertex*>*,
+            hash_Vertex, equal_Vertex>* get_adj_list();
 };
 
 #endif /* GRAPH_H_ */

@@ -9,17 +9,12 @@
 
 Vertex::Vertex(int id) {
     color = 0;
-    parent = nullptr;
     this->id = id;
 }
 
 Vertex::~Vertex() {
-    parent = nullptr;
 }
 
-Vertex* Vertex::getParent() {
-    return parent;
-}
 
 int Vertex::getID() {
     return id;
@@ -27,10 +22,6 @@ int Vertex::getID() {
 
 int Vertex::getColor() {
     return color;
-}
-
-void Vertex::setParent(Vertex* parent) {
-    this->parent = parent;
 }
 
 void Vertex::setColor(int c) {

@@ -18,10 +18,8 @@ class Vertex {
 public:
     Vertex(int id);
     virtual ~Vertex();
-    Vertex* getParent();
     int getColor();
     int getID();
-    void setParent(Vertex* parent);
     void setColor(int c);
     int id;
 
@@ -32,7 +30,7 @@ private:
      * 2: black
      */
     int color;
-    Vertex* parent;
+//    Vertex* parent;
 };
 
 struct hash_Vertex {
