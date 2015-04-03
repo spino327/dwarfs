@@ -13,8 +13,7 @@
 #include <stdio.h>
 
 #include <time.h>
-#include <stack>
-#include <queue>
+#include <deque>
 #include <vector>
 #include <map>
 
@@ -27,14 +26,13 @@ static const char* USAGE = "./dfs_serial <graph_file>";
 
 bool loadData(const char* fn, Graph** graph) {
 
-    string y;
     // checks the file name
     if (!fn)
         return false;
 
     ifstream in{fn};
     if (not in) {
-        perror(strcat("error opening ifstream for ", fn));
+        cerr << "error opening ifstream for " << fn << "\n";
     } else {
         string line_buff;
         istringstream iss;
@@ -64,9 +62,6 @@ bool loadData(const char* fn, Graph** graph) {
         }
 
         *graph = tmp_graph;
-
-        (*graph)->print();
-
         in.close();
 
         return true;
@@ -80,17 +75,18 @@ int main(int argc, char **argv) {
     // reading the user parameters
     if (argc != 2) {
         cout << USAGE;
-        exit(-1);
+        return -1;
     }
 
     Graph *graph;// = new Graph();
     char* input_fname = argv[1];
 
     if (!loadData(input_fname, &graph)) {
-        perror ("couldn't load the graph from the input file!");
+        cerr << "couldn't load the graph from the input file!\n";
+        return -1;
     }
 
-    stack<Vertex*> stack;
+    deque<Vertex*> dq;
 
     map<int, Vertex*>* ord_adj_list = new map<int, Vertex*>();
     for (auto vertex : *graph->get_adj_list()) {
@@ -102,47 +98,32 @@ int main(int argc, char **argv) {
         if (vertex.second->getColor() != 0)
             continue;
 
-        vertex.second->setColor(vertex.second->getColor() + 1);
-        stack.push(vertex.second);
-        //while stack not empty
-        int tabs = 0;
-        while (!stack.empty()) {
+        cout << "-\n";
+        dq.push_front(vertex.second);
 
+        //while deque not empty
+        while (!dq.empty()) {
             //take the first element
-            Vertex* current = stack.top();
+            Vertex* current = dq.front();
+            dq.pop_front();
 
-            //for all edges of current vertex
-            bool visited = false;
-            for (int i = 0; i < tabs; i++)
-                cout << "-";
-            cout << current->getID() << "\n";
+            if (current->getColor() == 0) {
+                cout << current->getID() << "\n";
 
-            for(Vertex* to : *graph->getEdges(current)) {
-
-                Vertex* real = graph->getVertex(to);
-                int color = real->getColor();
-
-                if (color == 0) {
-                    tabs++;
-                    //adding new vertex to work stack
-                    visited = true;
-                    stack.push(real);
-                    real->setColor(real->getColor() + 1);
-                    break;
-                }
-            }
-            if(!visited) {
-                tabs--;
-                stack.pop();
+                // set label as discovered
                 current->setColor(current->getColor() + 1);
+                deque<Vertex*>::iterator it = dq.begin();
+                for (Vertex* to : *graph->getEdges(current)) {
+                    Vertex* real = graph->getVertex(to);
+                    it = dq.insert(it, real);
+                    it++;
+                }
             }
         }
     }
 
     graph->print();
-
     ord_adj_list->clear();
-    delete []ord_adj_list;
 
     return 0;
 }
