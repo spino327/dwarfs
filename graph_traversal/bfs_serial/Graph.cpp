@@ -68,7 +68,10 @@ void Graph::resetColors() {
 void Graph::print() {
 
     for (auto from : *adj_list) {
-        cerr << from.first->getID() << " : color=" << from.first->getColor() << "\t[";
+        Vertex* p = from.first->getParent();
+        cerr << from.first->getID() << " : color=" << from.first->getColor()
+                << "\tparent=" << (p != nullptr ? p->getID() : INFINITY)
+                << "\t[";
 
         for (vector<Vertex*>::size_type i{0}, end{from.second->size()}; i != end; ++i)
             cerr << from.second->at(i)->getID() << ' ';

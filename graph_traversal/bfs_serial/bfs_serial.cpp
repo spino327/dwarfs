@@ -1,8 +1,6 @@
 /*
- * dfs_serial.cpp
+ * bfs_serial.cpp
  *
- *  Created on: Dec 13, 2014
- *      Author: pinogal
  */
 
 #include <cstdio>
@@ -13,7 +11,7 @@
 #include <stdio.h>
 
 #include <time.h>
-#include <deque>
+#include <queue>
 #include <vector>
 #include <map>
 
@@ -22,7 +20,7 @@
 
 using namespace std;
 
-static const char* USAGE = "./dfs_serial <graph_file>";
+static const char* USAGE = "./bfs_serial <graph_file>";
 
 bool loadData(const char* fn, Graph** graph) {
 
@@ -70,9 +68,9 @@ bool loadData(const char* fn, Graph** graph) {
     return false;
 }
 
-void iterative_dfs (Graph* graph) {
+void bfs (Graph* graph) {
 
-    deque<Vertex*> dq;
+    queue<Vertex*> Q;
 
     map<int, Vertex*>* ord_adj_list = new map<int, Vertex*>();
     for (auto vertex : *graph->get_adj_list()) {
@@ -85,55 +83,24 @@ void iterative_dfs (Graph* graph) {
             continue;
 
         cout << "-\n";
-        dq.push_front(vertex.second);
+        vertex.second->setColor(1);
+        Q.push(vertex.second);
 
-        //while deque not empty
-        while (!dq.empty()) {
+        //while queue not empty
+        while (!Q.empty()) {
             //take the first element
-            Vertex* current = dq.front();
-            dq.pop_front();
+            Vertex* v = Q.front();
+            Q.pop();
 
-            if (current->getColor() == 0) {
-                cout << current->getID() << "\n";
+            for (Vertex* to : *graph->getEdges(v)) {
+                Vertex* u = graph->getVertex(to);
 
-                // set label as discovered
-                current->setColor(current->getColor() + 1);
-                deque<Vertex*>::iterator it = dq.begin();
-                for (Vertex* to : *graph->getEdges(current)) {
-                    Vertex* real = graph->getVertex(to);
-                    it = dq.insert(it, real);
-                    it++;
+                if (u->getColor() == 0) {
+                    u->setColor(1);
+                    u->setParent(v);
+                    Q.push(u);
                 }
             }
-        }
-    }
-
-    ord_adj_list->clear();
-}
-
-void dfs_visit (Graph* g, Vertex* u) {
-    u->setColor(1);
-    cout << u->getID() << "\n";
-    for (Vertex* v : *g->getEdges(u)) {
-        v = g->getVertex(v);
-        if (v->getColor() == 0)
-            dfs_visit(g, v);
-    }
-    u->setColor(2);
-}
-
-void recursive_dfs (Graph* graph) {
-
-    map<int, Vertex*>* ord_adj_list = new map<int, Vertex*>();
-    for (auto vertex : *graph->get_adj_list()) {
-        ord_adj_list->insert( pair<int, Vertex*> (vertex.first->getID(), vertex.first) );
-    }
-
-    for (auto vertex : *ord_adj_list) {
-
-        if (vertex.second->getColor() == 0) {
-            cout << "-\n";
-            dfs_visit(graph, vertex.second);
         }
     }
 
@@ -156,20 +123,13 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    // print graph
-    graph->print();
-
     // iterative
     clock_t init = clock();
-    iterative_dfs(graph);
-    cout << "Iterative_dfs = " << (double)(clock()-init)/CLOCKS_PER_SEC << " sec\n";
+    bfs(graph);
+    cout << "bfs = " << (double)(clock()-init)/CLOCKS_PER_SEC << " sec\n";
 
-    // reset Colors
-    graph->resetColors();
-
-    init = clock();
-    recursive_dfs(graph);
-    cout << "Recursive_dfs = " << (double)(clock()-init)/CLOCKS_PER_SEC << " sec\n";
+    // print graph
+    graph->print();
 
     return 0;
 }
